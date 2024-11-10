@@ -10,7 +10,7 @@ M.setup = function(opts)
 
 	private.init()
 
-	-- vim.notify("hello world form dart_snippets", vim.log.levels.INFO)
+	vim.notify("Loaded dart_snippets.nvim", vim.log.levels.INFO)
 end
 
 private.init = function()
@@ -24,49 +24,156 @@ private.read_buffer = function()
 end
 
 private.regexps = {
-	class = [[[ ]*class ([a-zA-Z]+)]],
-	datatype_and_variable = [[[ \t]*final[ \t\n\r]+([a-zA-Z\<\>\,\? ]+)[ \t\n\r]+([a-zA-Z\_]+);]],
+	class = "class ([a-zA-Z]+)",
+	opening_b = "{",
+	final = "[ \t]*(final)",
+	datatype_1 = "[ \t]final ([a-zA-Z<>,? ]+) [a-zA-Z_]+;$",
+	datatype_2 = "[ \t]final ([a-zA-Z<>,? ]+)$",
+	variable = "([a-zA-Z_]+);",
+	semicolon = ";",
+	closing_b = "}",
 }
 
 private.class_data = {}
 
 private.generate_data_class = function()
-	private.find_class_names()
-	private.find_class_dt_and_variables()
+	private.find_class_and_d_v()
 end
 
-private.find_class_names = function()
+private.find_class_and_d_v = function()
 	local content = private.read_buffer()
 
-	local index = 1
-	for _, line in ipairs(content) do
-		local match = string.match(line, private.regexps.class)
+	local class_index = 0
+	local curly_counter = 0
+	local d_v_counter = 0
 
-		if match then
-			private.class_data[index] = match
-			index = index + 1
+	local inside_class = false
+	local seen_final = false
+	local datatype_name = nil
+	local is_nullable = nil
+	local variable_name = nil
+
+	for _, line in ipairs(content) do
+		local class_match = string.gmatch(line, private.regexps.class)
+
+		-- Check for class match
+		for c in class_match do
+			inside_class = true
+			class_index = class_index + 1
+
+			table.insert(private.class_data, class_index, {
+				class = c,
+			})
+		end
+
+		-- Check for Opening "{"
+		if inside_class then
+			local opening_b_match = string.gmatch(line, private.regexps.opening_b)
+
+			for _ in opening_b_match do
+				curly_counter = curly_counter + 1
+			end
+		end
+
+		-- Check for final
+		if inside_class then
+			local final_match = string.gmatch(line, private.regexps.final)
+
+			for _ in final_match do
+				seen_final = true
+			end
+		end
+
+		-- Check for datatype
+		if inside_class and seen_final then
+			local datatype1_match = string.gmatch(line, private.regexps.datatype_1)
+
+			for d in datatype1_match do
+				datatype_name = d
+
+				local null_check = string.match(d, "?$")
+
+				if null_check then
+					is_nullable = true
+					datatype_name = string.sub(d, 1, #d - 1)
+				end
+
+				break
+			end
+
+			local datatype2_match = string.gmatch(line, private.regexps.datatype_2)
+
+			for d in datatype2_match do
+				datatype_name = d
+
+				local null_check = string.match(d, "?$")
+
+				if null_check then
+					is_nullable = true
+					datatype_name = string.sub(d, 1, #d - 1)
+				end
+
+				break
+			end
+		end
+
+		-- Check for variable
+		if inside_class and seen_final and datatype_name then
+			local variable_match = string.gmatch(line, private.regexps.variable)
+
+			for v in variable_match do
+				variable_name = v
+				break
+			end
+		end
+
+		-- Check for semicolon
+		if inside_class and seen_final and datatype_name and variable_name then
+			local semicolon_match = string.gmatch(line, private.regexps.semicolon)
+
+			for _ in semicolon_match do
+				d_v_counter = d_v_counter + 1
+
+				if d_v_counter == 1 then
+					private.class_data[class_index].d_v = {}
+				end
+
+				table.insert(private.class_data[class_index].d_v, d_v_counter, {
+					d = datatype_name,
+					v = variable_name,
+					null = is_nullable and true or false,
+				})
+
+				variable_name = nil
+				is_nullable = nil
+				datatype_name = nil
+				seen_final = false
+			end
+		end
+
+		-- Check for Closing "}"
+		if inside_class then
+			local closing_b_match = string.gmatch(line, private.regexps.closing_b)
+
+			for _ in closing_b_match do
+				curly_counter = curly_counter - 1
+
+				if curly_counter == 0 then
+					d_v_counter = 0
+					inside_class = false
+				end
+			end
 		end
 	end
 
-	for i, class in ipairs(private.class_data) do
-		print(string.format("%d %s", i, class), vim.log.levels.INFO)
-	end
+	vim.notify(vim.inspect(private.class_data), vim.log.levels.INFO)
 end
 
-private.find_class_dt_and_variables = function()
-	local content = private.read_buffer()
 
-	local all_d_v = {}
-	local index = 1
 
-	for _, line in ipairs(content) do
-		for d, v in string.gmatch(line, private.regexps.datatype_and_variable) do
-			all_d_v[index] = { d = d, v = v }
-			index = index + 1
 		end
 	end
 
-	print(vim.inspect(all_d_v))
 end
 
 return M
