@@ -1,6 +1,6 @@
 local copy_with = {}
 
-copy_with.create_fun_copy_with = function(data)
+copy_with.generate_fun_copy_with = function(data)
 	for _, class_data in ipairs(data) do
 		if class_data.d_v then
 			-- copy_with parameters
@@ -17,7 +17,7 @@ copy_with.create_fun_copy_with = function(data)
 
 			local copy_with_string = string.format(
 				[[
-	%s copy_with({
+	%s copyWith({
 		%s
 	}) {
 		return %s(

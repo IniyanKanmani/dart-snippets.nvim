@@ -4,6 +4,7 @@ local private = {}
 local read_class = require("dart_snippets.read_class")
 local copy_with = require("dart_snippets.copy_with")
 local to_map = require("dart_snippets.to_map")
+local from_map = require("dart_snippets.from_map")
 
 M.opts = {}
 
@@ -27,8 +28,9 @@ private.data = {}
 
 private.generate_data_class = function()
 	private.data = read_class.find_class_and_d_v()
-	copy_with.create_fun_copy_with(private.data)
-	to_map.create_fun_to_map(private.data)
+	copy_with.generate_fun_copy_with(private.data)
+	to_map.generate_fun_to_map(private.data)
+	from_map.generate_fun_from_map(private.data)
 end
 
 return M
