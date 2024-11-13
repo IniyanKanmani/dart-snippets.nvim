@@ -6,6 +6,7 @@ local copy_with = require("dart_snippets.copy_with")
 local to_map = require("dart_snippets.to_map")
 local from_map = require("dart_snippets.from_map")
 local to_json = require("dart_snippets.to_json")
+local from_json = require("dart_snippets.from_json")
 
 M.opts = {}
 
@@ -33,6 +34,7 @@ private.generate_data_class = function()
 	to_map.generate_fun_to_map(private.data)
 	from_map.generate_fun_from_map(private.data)
 		to_json.generate_fun_to_json()
+		from_json.generate_fun_from_json(private.data)
 end
 
 return M
