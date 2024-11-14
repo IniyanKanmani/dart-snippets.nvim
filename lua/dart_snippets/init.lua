@@ -8,6 +8,7 @@ local from_map = require("dart_snippets.from_map")
 local to_json = require("dart_snippets.to_json")
 local from_json = require("dart_snippets.from_json")
 local to_string = require("dart_snippets.to_string")
+local props = require("dart_snippets.props")
 
 M.opts = {}
 
@@ -37,6 +38,7 @@ private.generate_data_class = function()
 		to_json.generate_fun_to_json()
 		from_json.generate_fun_from_json(private.data)
 		to_string.generate_fun_to_string(private.data)
+		props.generate_fun_props(private.data)
 end
 
 return M
