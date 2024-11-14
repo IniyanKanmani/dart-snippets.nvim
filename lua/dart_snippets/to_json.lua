@@ -6,6 +6,8 @@ to_json.generate_fun_to_json = function()
 		]])
 
 	vim.notify(to_json_string, vim.log.levels.INFO)
+
+	return to_json_string
 end
 
 return to_json

@@ -2,35 +2,39 @@ local to_map = {}
 
 local utils = require("dart_snippets.utils")
 
-to_map.generate_fun_to_map = function(data)
-	for _, class_data in ipairs(data) do
-		if class_data.d_v then
-			local to_map_return = {}
-			for _, d_v in ipairs(class_data.d_v) do
-				table.insert(
-					to_map_return,
-					string.format(
-						'"%s": %s,',
-						utils.to_lower_snake_case(d_v.v),
-						to_map.handle_datatypes(d_v.d, d_v.v, d_v.nullable)
-					)
-				)
-			end
+to_map.generate_fun_to_map = function(class_data)
+	local to_map_string = ""
 
-			local to_map_string = string.format(
-				[[
+	if class_data.d_v then
+		local to_map_return = {}
+		for _, d_v in ipairs(class_data.d_v) do
+			table.insert(
+				to_map_return,
+				string.format(
+					'"%s": %s,',
+					utils.to_lower_snake_case(d_v.v),
+					to_map.handle_datatypes(d_v.d, d_v.v, d_v.nullable)
+				)
+			)
+		end
+
+		to_map_string = string.format(
+			[[
 	Map<String, dynamic> toMap() {
 		return <String, dynamic>{
 			%s
 		};
 	}
 				]],
-				table.concat(to_map_return, "\n\t\t\t")
-			)
+			table.concat(to_map_return, "\n\t\t\t")
+		)
 
-			vim.notify(to_map_string, vim.log.levels.INFO)
-		end
+		to_map.function_string = to_map_string
+
+		vim.notify(to_map_string, vim.log.levels.INFO)
 	end
+
+	return to_map_string
 end
 
 to_map.handle_datatypes = function(datatype, variable, nullable)

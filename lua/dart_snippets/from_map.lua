@@ -2,31 +2,33 @@ local from_map = {}
 
 local utils = require("dart_snippets.utils")
 
-from_map.generate_fun_from_map = function(data)
-	for _, class_data in ipairs(data) do
-		if class_data.d_v then
-			local from_map_return = {}
+from_map.generate_fun_from_map = function(class_data)
+	local from_map_string = ""
 
-			for _, d_v in ipairs(class_data.d_v) do
-				table.insert(from_map_return, string.format("%s: %s,", d_v.v, from_map.handle_datatypes(d_v.d, d_v.v)))
-			end
+	if class_data.d_v then
+		local from_map_return = {}
 
-			local from_map_string = string.format(
-				[[
+		for _, d_v in ipairs(class_data.d_v) do
+			table.insert(from_map_return, string.format("%s: %s,", d_v.v, from_map.handle_datatypes(d_v.d, d_v.v)))
+		end
+
+		from_map_string = string.format(
+			[[
 	factory %s.fromMap(Map<String, dynamic> map) {
 		return %s(
 			%s
 		);
 	}
 				]],
-				class_data.class,
-				class_data.class,
-				table.concat(from_map_return, "\n\t\t\t")
-			)
+			class_data.class,
+			class_data.class,
+			table.concat(from_map_return, "\n\t\t\t")
+		)
 
-			vim.notify(from_map_string, vim.log.levels.INFO)
-		end
+		vim.notify(from_map_string, vim.log.levels.INFO)
 	end
+
+	return from_map_string
 end
 
 from_map.handle_datatypes = function(datatype, variable)

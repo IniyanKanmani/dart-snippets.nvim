@@ -2,17 +2,18 @@ local operator = {}
 
 local utils = require("dart_snippets.utils")
 
-operator.generate_fun_operator = function(data)
-	for _, class_data in ipairs(data) do
-		if class_data.d_v then
-			local operator_return = {}
+operator.generate_fun_operator = function(class_data)
+	local operator_string = ""
 
-			for _, d_v in ipairs(class_data.d_v) do
-				table.insert(operator_return, string.format("%s", operator.handle_datatypes(d_v.d, d_v.v)))
-			end
+	if class_data.d_v then
+		local operator_return = {}
 
-			local operator_string = string.format(
-				[[
+		for _, d_v in ipairs(class_data.d_v) do
+			table.insert(operator_return, string.format("%s", operator.handle_datatypes(d_v.d, d_v.v)))
+		end
+
+		operator_string = string.format(
+			[[
 	@override
 	bool operator ==(covariant %s other) {
 		if (identical(this, other)) return true;
@@ -21,13 +22,14 @@ operator.generate_fun_operator = function(data)
 			%s;
 	}
 			]],
-				class_data.class,
-				table.concat(operator_return, " &&\n\t\t\t")
-			)
+			class_data.class,
+			table.concat(operator_return, " &&\n\t\t\t")
+		)
 
-			vim.notify(operator_string, vim.log.levels.INFO)
-		end
+		vim.notify(operator_string, vim.log.levels.INFO)
 	end
+
+	return operator_string
 end
 
 operator.handle_datatypes = function(datatype, variable)

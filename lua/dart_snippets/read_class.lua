@@ -6,8 +6,10 @@ read_class.data = {}
 
 read_class.regexps = {
 	class = "class ([a-zA-Z]+)",
+	extends = "[ ]*(extends)[ ]*",
+	equatable = "[ ]*(Equatable)[ ]*",
 	opening_b = "{",
-	final = "[ \t]*(final)",
+	final = "[ \t]*(final) ",
 	datatype_1 = "[ \t]final ([a-zA-Z<>,? ]+) [a-zA-Z_]+;$",
 	datatype_2 = "[ \t]final ([a-zA-Z<>,? ]+)$",
 	variable = "([a-zA-Z_]+);",
@@ -26,36 +28,71 @@ read_class.find_class_and_d_v = function()
 	local curly_counter = 0
 	local d_v_counter = 0
 
-	local inside_class = false
+	local seen_class = false
+	local seen_extends = false
 	local seen_final = false
 	local datatype_name = nil
 	local nullable = nil
 	local variable_name = nil
 
-	for _, line in ipairs(content) do
-		local class_match = string.gmatch(line, read_class.regexps.class)
-
+	for i, line in ipairs(content) do
 		-- Check for class match
-		for c in class_match do
-			inside_class = true
-			class_index = class_index + 1
+		if curly_counter == 0 then
+			local class_match = string.gmatch(line, read_class.regexps.class)
 
-			table.insert(read_class.data, class_index, {
-				class = c,
-			})
+			for c in class_match do
+				seen_class = true
+				class_index = class_index + 1
+
+				table.insert(read_class.data, class_index, {
+					class = c,
+				})
+
+				break
+			end
+		end
+
+		-- Check for extends
+		if seen_class and not seen_extends then
+			local extends_match = string.gmatch(line, read_class.regexps.extends)
+
+			for _ in extends_match do
+				seen_extends = true
+
+				break
+			end
+		end
+
+		-- Check for Equatable
+		if seen_class and seen_extends then
+			local equatable_match = string.gmatch(line, read_class.regexps.equatable)
+
+			for _ in equatable_match do
+				read_class.data[class_index].equatable = true
+
+				if seen_extends then
+					seen_extends = false
+				end
+
+				break
+			end
 		end
 
 		-- Check for Opening "{"
-		if inside_class then
+		if seen_class then
 			local opening_b_match = string.gmatch(line, read_class.regexps.opening_b)
 
 			for _ in opening_b_match do
 				curly_counter = curly_counter + 1
+
+				if curly_counter == 1 then
+					read_class.data[class_index].start_line = i
+				end
 			end
 		end
 
 		-- Check for final
-		if inside_class then
+		if seen_class then
 			local final_match = string.gmatch(line, read_class.regexps.final)
 
 			for _ in final_match do
@@ -64,7 +101,7 @@ read_class.find_class_and_d_v = function()
 		end
 
 		-- Check for datatype
-		if inside_class and seen_final then
+		if seen_class and seen_final then
 			local datatype1_match = string.gmatch(line, read_class.regexps.datatype_1)
 
 			for d in datatype1_match do
@@ -89,7 +126,7 @@ read_class.find_class_and_d_v = function()
 		end
 
 		-- Check for variable
-		if inside_class and seen_final and datatype_name then
+		if seen_class and seen_final and datatype_name then
 			local variable_match = string.gmatch(line, read_class.regexps.variable)
 
 			for v in variable_match do
@@ -99,7 +136,7 @@ read_class.find_class_and_d_v = function()
 		end
 
 		-- Check for semicolon
-		if inside_class and seen_final and datatype_name and variable_name then
+		if seen_class and seen_final and datatype_name and variable_name then
 			local semicolon_match = string.gmatch(line, read_class.regexps.semicolon)
 
 			for _ in semicolon_match do
@@ -123,15 +160,19 @@ read_class.find_class_and_d_v = function()
 		end
 
 		-- Check for Closing "}"
-		if inside_class then
+		if seen_class then
 			local closing_b_match = string.gmatch(line, read_class.regexps.closing_b)
 
 			for _ in closing_b_match do
 				curly_counter = curly_counter - 1
 
+				if curly_counter == 1 then
+					read_class.data[class_index].end_line = i
+				end
+
 				if curly_counter == 0 then
 					d_v_counter = 0
-					inside_class = false
+					seen_class = false
 				end
 			end
 		end
