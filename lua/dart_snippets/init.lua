@@ -49,75 +49,55 @@ private.generate_dart_data_class = function()
 
 	for i, class_data in ipairs(private.data) do
 		if M.opts.data_class.copy_with then
-			utils.list_replace(
-				private.data[i].f,
-				"copy_with",
-				"code_lines",
-				copy_with.generate_fun_copy_with(class_data)
-			)
+			utils.op_list(private.data[i].f, "copy_with", "code_lines", copy_with.generate_fun_copy_with(class_data))
 
 			-- private.data[i].f.copy_with.code_lines = copy_with.generate_fun_copy_with(class_data)
 		end
 
 		if M.opts.data_class.to_map then
-			utils.list_replace(private.data[i].f, "to_map", "code_lines", to_map.generate_fun_to_map(class_data))
+			utils.op_list(private.data[i].f, "to_map", "code_lines", to_map.generate_fun_to_map(class_data))
 
 			-- private.data[i].f.to_map.code_lines = to_map.generate_fun_to_map(class_data)
 		end
 
 		if M.opts.data_class.from_map then
-			utils.list_replace(private.data[i].f, "from_map", "code_lines", from_map.generate_fun_from_map(class_data))
+			utils.op_list(private.data[i].f, "from_map", "code_lines", from_map.generate_fun_from_map(class_data))
 
 			-- private.data[i].f.from_map.code_lines = from_map.generate_fun_from_map(class_data)
 		end
 
 		if M.opts.data_class.to_json then
-			utils.list_replace(private.data[i].f, "to_json", "code_lines", to_json.generate_fun_to_json())
+			utils.op_list(private.data[i].f, "to_json", "code_lines", to_json.generate_fun_to_json())
 
 			-- private.data[i].f.to_json.code_lines = to_json.generate_fun_to_json()
 		end
 
 		if M.opts.data_class.from_json then
-			utils.list_replace(
-				private.data[i].f,
-				"from_json",
-				"code_lines",
-				from_json.generate_fun_from_json(class_data)
-			)
+			utils.op_list(private.data[i].f, "from_json", "code_lines", from_json.generate_fun_from_json(class_data))
 
 			-- private.data[i].f.from_json.code_lines = from_json.generate_fun_from_json(class_data)
 		end
 
 		if M.opts.data_class.to_string then
-			utils.list_replace(
-				private.data[i].f,
-				"to_string",
-				"code_lines",
-				to_string.generate_fun_to_string(class_data)
-			)
+			utils.op_list(private.data[i].f, "to_string", "code_lines", to_string.generate_fun_to_string(class_data))
 
 			-- private.data[i].f.to_string.code_lines = to_string.generate_fun_to_string(class_data)
 		end
 
 		if M.opts.data_class.hash_code then
-			utils.list_replace(
-				private.data[i].f,
-				"hash_code",
-				"code_lines",
-				hash_code.generate_fun_hash_code(class_data)
-			)
+			utils.op_list(private.data[i].f, "hash_code", "code_lines", hash_code.generate_fun_hash_code(class_data))
 
 			-- private.data[i].f.hash_code.code_lines = hash_code.generate_fun_hash_code(class_data)
 		end
 
 		if M.opts.data_class.operator then
-			utils.list_replace(private.data[i].f, "operator", "code_lines", operator.generate_fun_operator(class_data))
+			utils.op_list(private.data[i].f, "operator", "code_lines", operator.generate_fun_operator(class_data))
 
 			-- private.data[i].f.operator.code_lines = operator.generate_fun_operator(class_data)
 		end
 
 		if M.opts.data_class.props and class_data.class.equatable then
-			utils.list_replace(private.data[i].f, "props", "code_lines", props.generate_fun_props(class_data))
+			utils.op_list(private.data[i].f, "props", "code_lines", props.generate_fun_props(class_data))
 
 			-- private.data[i].f.props.code_lines = props.generate_fun_props(class_data)
 		end

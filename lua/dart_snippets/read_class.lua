@@ -6,12 +6,16 @@ read_class.regexps = {
 	class = "class ([a-zA-Z]+)",
 	extends = "[ ]*(extends)[ ]*",
 	equatable = "[ ]*(Equatable)[ ]*",
+
 	opening_b = "{",
+
 	final = "[ \t]*(final) ",
 	datatype_1 = "[ \t]final ([a-zA-Z<>,? ]+) [a-zA-Z_]+;$",
 	datatype_2 = "[ \t]final ([a-zA-Z<>,? ]+)$",
 	variable = "([a-zA-Z_]+);",
 	semicolon = ";",
+
+	empty_line = "^%s*$",
 
 	override = [[[ ]*@override]],
 	copy_with = [[[ ]+copyWith]],
@@ -43,8 +47,12 @@ read_class.find_class_and_d_v = function()
 	local seen = {
 		seen_class = false,
 		seen_extends = false,
+
 		seen_final = false,
 
+		seen_empty_line = false,
+
+		seen_override = false,
 		seen_copy_with = false,
 		seen_to_map = false,
 		seen_from_map = false,
@@ -80,6 +88,26 @@ read_class.find_class_and_d_v = function()
 			end
 		end
 
+		-- Check for empty line
+		if seen.seen_class then
+			local empty_line_match = string.match(line, read_class.regexps.empty_line)
+
+			if empty_line_match then
+				seen.seen_empty_line = true
+				print("empty", i, line)
+			end
+		end
+
+		-- Check override
+		if seen.seen_class then
+			local override_match = string.match(line, read_class.regexps.override)
+
+			if override_match then
+				seen.seen_override = true
+				print("override", i, line)
+			end
+		end
+
 		-- Check copy_with
 		if seen.seen_class and not seen.seen_copy_with then
 			local copy_with_match = string.gmatch(line, read_class.regexps.copy_with)
@@ -89,9 +117,8 @@ read_class.find_class_and_d_v = function()
 					seen.seen_copy_with = true
 
 					table.insert(read_class.data[class_index].f, {
-						copy_with = {
-							start_line = i,
-						},
+						name = "copy_with",
+						start_line = seen.seen_empty_line and i - 1 or i,
 					})
 
 					-- read_class.data[class_index].f.copy_with = {
@@ -112,9 +139,8 @@ read_class.find_class_and_d_v = function()
 					seen.seen_to_map = true
 
 					table.insert(read_class.data[class_index].f, {
-						to_map = {
-							start_line = i,
-						},
+						name = "to_map",
+						start_line = seen.seen_empty_line and i - 1 or i,
 					})
 
 					-- read_class.data[class_index].f.to_map = {
@@ -135,9 +161,8 @@ read_class.find_class_and_d_v = function()
 					seen.seen_from_map = true
 
 					table.insert(read_class.data[class_index].f, {
-						from_map = {
-							start_line = i,
-						},
+						name = "from_map",
+						start_line = seen.seen_empty_line and i - 1 or i,
 					})
 
 					-- read_class.data[class_index].f.from_map = {
@@ -158,9 +183,8 @@ read_class.find_class_and_d_v = function()
 					seen.seen_to_json = true
 
 					table.insert(read_class.data[class_index].f, {
-						to_json = {
-							start_line = i,
-						},
+						name = "to_json",
+						start_line = seen.seen_empty_line and i - 1 or i,
 					})
 
 					-- read_class.data[class_index].f.to_json = {
@@ -181,9 +205,8 @@ read_class.find_class_and_d_v = function()
 					seen.seen_from_json = true
 
 					table.insert(read_class.data[class_index].f, {
-						from_json = {
-							start_line = i,
-						},
+						name = "from_json",
+						start_line = seen.seen_empty_line and i - 1 or i,
 					})
 
 					-- read_class.data[class_index].f.from_json = {
@@ -203,10 +226,17 @@ read_class.find_class_and_d_v = function()
 				if curly_counter == 1 then
 					seen.seen_to_string = true
 
+					local i_num = i
+
+					if seen.seen_override and seen.seen_empty_line then
+						i_num = i - 2
+					elseif seen.seen_override or seen.seen_empty_line then
+						i_num = i - 1
+					end
+
 					table.insert(read_class.data[class_index].f, {
-						to_string = {
-							start_line = i - 1,
-						},
+						name = "to_string",
+						start_line = i_num,
 					})
 
 					-- read_class.data[class_index].f.to_string = {
@@ -226,10 +256,17 @@ read_class.find_class_and_d_v = function()
 				if curly_counter == 1 then
 					seen.seen_hash_code = true
 
+					local i_num = i
+
+					if seen.seen_override and seen.seen_empty_line then
+						i_num = i - 2
+					elseif seen.seen_override or seen.seen_empty_line then
+						i_num = i - 1
+					end
+
 					table.insert(read_class.data[class_index].f, {
-						hash_code = {
-							start_line = i - 1,
-						},
+						name = "hash_code",
+						start_line = i_num,
 					})
 
 					-- read_class.data[class_index].f.hash_code = {
@@ -249,10 +286,17 @@ read_class.find_class_and_d_v = function()
 				if curly_counter == 1 then
 					seen.seen_operator = true
 
+					local i_num = i
+
+					if seen.seen_override and seen.seen_empty_line then
+						i_num = i - 2
+					elseif seen.seen_override or seen.seen_empty_line then
+						i_num = i - 1
+					end
+
 					table.insert(read_class.data[class_index].f, {
-						operator = {
-							start_line = i - 1,
-						},
+						name = "operator",
+						start_line = i_num,
 					})
 
 					-- read_class.data[class_index].f.operator = {
@@ -272,10 +316,17 @@ read_class.find_class_and_d_v = function()
 				if curly_counter == 1 then
 					seen.seen_props = true
 
+					local i_num = i
+
+					if seen.seen_override and seen.seen_empty_line then
+						i_num = i - 2
+					elseif seen.seen_override or seen.seen_empty_line then
+						i_num = i - 1
+					end
+
 					table.insert(read_class.data[class_index].f, {
-						props = {
-							start_line = i - 1,
-						},
+						name = "props",
+						start_line = i_num,
 					})
 
 					-- read_class.data[class_index].f.props = {
@@ -405,55 +456,55 @@ read_class.find_class_and_d_v = function()
 					if seen.seen_copy_with then
 						seen.seen_copy_with = false
 
-						utils.list_replace(read_class.data[class_index].f, "copy_with", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "copy_with", "end_line", i)
 
 						-- read_class.data[class_index].f.copy_with.end_line = i
 					elseif seen.seen_to_map then
 						seen.seen_to_map = false
 
-						utils.list_replace(read_class.data[class_index].f, "to_map", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "to_map", "end_line", i)
 
 						-- read_class.data[class_index].f.to_map.end_line = i
 					elseif seen.seen_from_map then
 						seen.seen_from_map = false
 
-						utils.list_replace(read_class.data[class_index].f, "from_map", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "from_map", "end_line", i)
 
 						-- read_class.data[class_index].f.from_map.end_line = i
 					elseif seen.seen_to_json then
 						seen.seen_to_json = false
 
-						utils.list_replace(read_class.data[class_index].f, "to_json", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "to_json", "end_line", i)
 
 						-- read_class.data[class_index].f.to_json.end_line = i
 					elseif seen.seen_from_json then
 						seen.seen_from_json = false
 
-						utils.list_replace(read_class.data[class_index].f, "from_json", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "from_json", "end_line", i)
 
 						-- read_class.data[class_index].f.from_json.end_line = i
 					elseif seen.seen_to_string then
 						seen.seen_to_string = false
 
-						utils.list_replace(read_class.data[class_index].f, "to_string", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "to_string", "end_line", i)
 
 						-- read_class.data[class_index].f.to_string.end_line = i
 					elseif seen.seen_hash_code then
 						seen.seen_hash_code = false
 
-						utils.list_replace(read_class.data[class_index].f, "hash_code", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "hash_code", "end_line", i)
 
 						-- read_class.data[class_index].f.hash_code.end_line = i
 					elseif seen.seen_operator then
 						seen.seen_operator = false
 
-						utils.list_replace(read_class.data[class_index].f, "operator", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "operator", "end_line", i)
 
 						-- read_class.data[class_index].f.operator.end_line = i
 					elseif seen.seen_props then
 						seen.seen_props = false
 
-						utils.list_replace(read_class.data[class_index].f, "props", "end_line", i)
+						utils.op_list(read_class.data[class_index].f, "props", "end_line", i)
 
 						-- read_class.data[class_index].f.props.end_line = i
 					end
@@ -464,6 +515,27 @@ read_class.find_class_and_d_v = function()
 					seen.seen_class = false
 					read_class.data[class_index].class.end_line = i
 				end
+			end
+		end
+
+		-- Check not override
+		if seen.seen_class then
+			local override_match = string.match(line, read_class.regexps.override)
+
+			if not override_match then
+				seen.seen_override = false
+				print("not override", i, line)
+			end
+		end
+
+		-- Check for not empty line
+		-- empty line takes override too
+		if seen.seen_class and not seen.seen_override then
+			local empty_line_match = string.match(line, read_class.regexps.empty_line)
+
+			if not empty_line_match then
+				seen.seen_empty_line = false
+				print("not empty", i, line)
 			end
 		end
 	end

@@ -37,13 +37,23 @@ utils.null_check = function(value)
 	}
 end
 
-utils.list_replace = function(list, e, key, val)
+utils.op_list = function(list, name, key, val)
+	local found = false
+
 	for _, l in ipairs(list) do
-		if l[e] then
-			l[e][key] = val
+		if l.name == name then
+			l[key] = val
+			found = true
 
 			break
 		end
+	end
+
+	if not found then
+		table.insert(list, {
+			name = name,
+			[key] = val,
+		})
 	end
 end
 

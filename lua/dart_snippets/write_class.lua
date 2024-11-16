@@ -7,12 +7,10 @@ write_class.write_class_functions = function(opts, class_data)
 	local end_line = class_data.class.end_line - 1 - line_diff
 
 	for _, f in ipairs(class_data.f) do
-		for key, value in pairs(f) do
-			if opts.data_class[key] then
-				vim.api.nvim_buf_set_lines(0, end_line, end_line, false, value.code_lines)
+		if opts.data_class[f.name] then
+			vim.api.nvim_buf_set_lines(0, end_line, end_line, false, f.code_lines)
 
-				end_line = end_line + #value.code_lines
-			end
+			end_line = end_line + #f.code_lines
 		end
 	end
 
@@ -75,16 +73,14 @@ write_class.remove_previous_functions = function(opts, class_data)
 	local line_diff = 0
 
 	for _, f in ipairs(class_data.f) do
-		for key, value in pairs(f) do
-			if opts.data_class[key] then
-				if value.start_line and value.end_line then
-					local start_line = value.start_line - 1 - line_diff
-					local end_line = value.end_line - line_diff
+		if opts.data_class[f.name] then
+			if f.start_line and f.end_line then
+				local start_line = f.start_line - 1 - line_diff
+				local end_line = f.end_line - line_diff
 
-					vim.api.nvim_buf_set_lines(0, start_line, end_line, false, {})
+				vim.api.nvim_buf_set_lines(0, start_line, end_line, false, {})
 
-					line_diff = line_diff + value.end_line - value.start_line + 1
-				end
+				line_diff = line_diff + f.end_line - f.start_line + 1
 			end
 		end
 	end
