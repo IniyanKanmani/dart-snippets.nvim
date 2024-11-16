@@ -3,6 +3,7 @@ local operator = {}
 local utils = require("dart_snippets.utils")
 
 operator.generate_fun_operator = function(class_data)
+	local operator_code_lines = {}
 	local operator_string = ""
 
 	if class_data.d_v then
@@ -26,10 +27,18 @@ operator.generate_fun_operator = function(class_data)
 			table.concat(operator_return, " &&\n\t\t\t")
 		)
 
-		vim.notify(operator_string, vim.log.levels.INFO)
+		if operator_string ~= "" then
+			table.insert(operator_code_lines, "")
+
+			for line in string.gmatch(operator_string, "[^\r\n]+") do
+				table.insert(operator_code_lines, line)
+			end
+
+			table.remove(operator_code_lines, #operator_code_lines)
+		end
 	end
 
-	return operator_string
+	return operator_code_lines
 end
 
 operator.handle_datatypes = function(datatype, variable)

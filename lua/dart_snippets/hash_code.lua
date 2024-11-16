@@ -1,6 +1,7 @@
 local hash_code = {}
 
 hash_code.generate_fun_hash_code = function(class_data)
+	local hash_code_code_lines = {}
 	local hash_code_string = ""
 
 	if class_data.d_v then
@@ -15,14 +16,22 @@ hash_code.generate_fun_hash_code = function(class_data)
 	@override
 	int get hashCode =>
 			%s;
-				]],
+			]],
 			table.concat(hash_code_return, " ^\n\t\t\t")
 		)
 
-		vim.notify(hash_code_string, vim.log.levels.INFO)
+		if hash_code_string ~= "" then
+			table.insert(hash_code_code_lines, "")
+
+			for line in string.gmatch(hash_code_string, "[^\r\n]+") do
+				table.insert(hash_code_code_lines, line)
+			end
+
+			table.remove(hash_code_code_lines, #hash_code_code_lines)
+		end
 	end
 
-	return hash_code_string
+	return hash_code_code_lines
 end
 
 return hash_code

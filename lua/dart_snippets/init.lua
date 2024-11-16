@@ -12,6 +12,8 @@ local hash_code = require("dart_snippets.hash_code")
 local operator = require("dart_snippets.operator")
 local props = require("dart_snippets.props")
 
+local write_class = require("dart_snippets.write_class")
+
 M.opts = {
 	data_class = {
 		copy_with = true,
@@ -47,49 +49,42 @@ private.generate_dart_data_class = function()
 
 	for i, class_data in ipairs(private.data) do
 		if M.opts.data_class.copy_with then
-			private.data[i].copy_with = {}
-			private.data[i].copy_with.function_code = copy_with.generate_fun_copy_with(class_data)
+			private.data[i].copy_with.code_lines = copy_with.generate_fun_copy_with(class_data)
 		end
 
 		if M.opts.data_class.to_map then
-			private.data[i].to_map = {}
-			private.data[i].to_map.function_code = to_map.generate_fun_to_map(class_data)
+			private.data[i].to_map.code_lines = to_map.generate_fun_to_map(class_data)
 		end
 
 		if M.opts.data_class.from_map then
-			private.data[i].from_map = {}
-			private.data[i].from_map.function_code = from_map.generate_fun_from_map(class_data)
+			private.data[i].from_map.code_lines = from_map.generate_fun_from_map(class_data)
 		end
 
 		if M.opts.data_class.to_json then
-			private.data[i].to_json = {}
-			private.data[i].to_json.function_code = to_json.generate_fun_to_json()
+			private.data[i].to_json.code_lines = to_json.generate_fun_to_json()
 		end
 
 		if M.opts.data_class.from_json then
-			private.data[i].from_json = {}
-			private.data[i].from_json.function_code = from_json.generate_fun_from_json(class_data)
+			private.data[i].from_json.code_lines = from_json.generate_fun_from_json(class_data)
 		end
 
 		if M.opts.data_class.to_string then
-			private.data[i].to_string = {}
-			private.data[i].to_string.function_code = to_string.generate_fun_to_string(class_data)
+			private.data[i].to_string.code_lines = to_string.generate_fun_to_string(class_data)
 		end
 
 		if M.opts.data_class.hash_code then
-			private.data[i].hash_code = {}
-			private.data[i].hash_code.function_code = hash_code.generate_fun_hash_code(class_data)
+			private.data[i].hash_code.code_lines = hash_code.generate_fun_hash_code(class_data)
 		end
 
 		if M.opts.data_class.operator then
-			private.data[i].operator = {}
-			private.data[i].operator.function_code = operator.generate_fun_operator(class_data)
+			private.data[i].operator.code_lines = operator.generate_fun_operator(class_data)
 		end
 
 		if M.opts.data_class.props and class_data.equatable then
-			private.data[i].props = {}
-			private.data[i].props.function_code = props.generate_fun_props(class_data)
+			private.data[i].props.code_lines = props.generate_fun_props(class_data)
 		end
+
+		write_class.write_class_functions(M.opts, private.data[i])
 	end
 end
 

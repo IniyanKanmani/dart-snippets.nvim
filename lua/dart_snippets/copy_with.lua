@@ -1,6 +1,7 @@
 local copy_with = {}
 
 copy_with.generate_fun_copy_with = function(class_data)
+	local copy_with_code_lines = {}
 	local copy_with_string = ""
 
 	if class_data.d_v then
@@ -25,19 +26,25 @@ copy_with.generate_fun_copy_with = function(class_data)
 			%s
 		);
 	}
-				]],
+			]],
 			class_data.class,
 			table.concat(copy_with_parameters, "\n\t\t"),
 			class_data.class,
 			table.concat(copy_with_return, "\n\t\t\t")
 		)
-
-		copy_with.function_string = copy_with_string
-
-		vim.notify(copy_with_string, vim.log.levels.INFO)
 	end
 
-	return copy_with_string
+	if copy_with_string ~= "" then
+		table.insert(copy_with_code_lines, "")
+
+		for line in string.gmatch(copy_with_string, "[^\r\n]+") do
+			table.insert(copy_with_code_lines, line)
+		end
+
+		table.remove(copy_with_code_lines, #copy_with_code_lines)
+	end
+
+	return copy_with_code_lines
 end
 
 return copy_with

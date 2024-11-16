@@ -46,6 +46,15 @@ read_class.find_class_and_d_v = function()
 
 				table.insert(read_class.data, class_index, {
 					class = c,
+					copy_with = {},
+					to_map = {},
+					from_map = {},
+					to_json = {},
+					from_json = {},
+					to_string = {},
+					hash_code = {},
+					operator = {},
+					props = {},
 				})
 
 				break
@@ -166,13 +175,11 @@ read_class.find_class_and_d_v = function()
 			for _ in closing_b_match do
 				curly_counter = curly_counter - 1
 
-				if curly_counter == 1 then
-					read_class.data[class_index].end_line = i
-				end
 
 				if curly_counter == 0 then
 					d_v_counter = 0
 					seen_class = false
+					read_class.data[class_index].end_line = i
 				end
 			end
 		end

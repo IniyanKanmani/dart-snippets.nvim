@@ -3,6 +3,7 @@ local from_map = {}
 local utils = require("dart_snippets.utils")
 
 from_map.generate_fun_from_map = function(class_data)
+	local from_map_code_lines = {}
 	local from_map_string = ""
 
 	if class_data.d_v then
@@ -19,16 +20,24 @@ from_map.generate_fun_from_map = function(class_data)
 			%s
 		);
 	}
-				]],
+			]],
 			class_data.class,
 			class_data.class,
 			table.concat(from_map_return, "\n\t\t\t")
 		)
-
-		vim.notify(from_map_string, vim.log.levels.INFO)
 	end
 
-	return from_map_string
+	if from_map_string ~= "" then
+		table.insert(from_map_code_lines, "")
+
+		for line in string.gmatch(from_map_string, "[^\r\n]+") do
+			table.insert(from_map_code_lines, line)
+		end
+
+		table.remove(from_map_code_lines, #from_map_code_lines)
+	end
+
+	return from_map_code_lines
 end
 
 from_map.handle_datatypes = function(datatype, variable)

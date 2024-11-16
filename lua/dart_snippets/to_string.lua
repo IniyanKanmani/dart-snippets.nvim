@@ -1,6 +1,7 @@
 local to_string = {}
 
 to_string.generate_fun_to_string = function(class_data)
+	local to_string_code_lines = {}
 	local to_string_string = ""
 
 	if class_data.d_v then
@@ -14,14 +15,22 @@ to_string.generate_fun_to_string = function(class_data)
 			[[
 	@override
 	String toString() => "%s";
-				]],
+			]],
 			table.concat(to_string_return, ", ")
 		)
 
-		vim.notify(to_string_string, vim.log.levels.INFO)
+		if to_string_string ~= "" then
+			table.insert(to_string_code_lines, "")
+
+			for line in string.gmatch(to_string_string, "[^\r\n]+") do
+				table.insert(to_string_code_lines, line)
+			end
+
+			table.remove(to_string_code_lines, #to_string_code_lines)
+		end
 	end
 
-	return to_string_string
+	return to_string_code_lines
 end
 
 return to_string
