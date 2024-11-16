@@ -27,9 +27,9 @@ copy_with.generate_fun_copy_with = function(class_data)
 		);
 	}
 			]],
-			class_data.class,
+			class_data.class.name,
 			table.concat(copy_with_parameters, "\n\t\t"),
-			class_data.class,
+			class_data.class.name,
 			table.concat(copy_with_return, "\n\t\t\t")
 		)
 	end

@@ -18,12 +18,11 @@ operator.generate_fun_operator = function(class_data)
 	@override
 	bool operator ==(covariant %s other) {
 		if (identical(this, other)) return true;
-
 		return
 			%s;
 	}
 			]],
-			class_data.class,
+			class_data.class.name,
 			table.concat(operator_return, " &&\n\t\t\t")
 		)
 

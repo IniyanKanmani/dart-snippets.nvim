@@ -3,7 +3,9 @@ local to_json = {}
 to_json.generate_fun_to_json = function()
 	local to_json_code_lines = {}
 	local to_json_string = string.format([[
-	String toJson() => json.encode(toMap());
+	String toJson() { 
+		return json.encode(toMap());
+	}
 		]])
 
 	if to_json_string ~= "" then

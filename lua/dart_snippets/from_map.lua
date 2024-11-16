@@ -21,8 +21,8 @@ from_map.generate_fun_from_map = function(class_data)
 		);
 	}
 			]],
-			class_data.class,
-			class_data.class,
+			class_data.class.name,
+			class_data.class.name,
 			table.concat(from_map_return, "\n\t\t\t")
 		)
 	end

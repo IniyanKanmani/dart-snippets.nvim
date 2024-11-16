@@ -37,6 +37,16 @@ utils.null_check = function(value)
 	}
 end
 
+utils.list_replace = function(list, e, key, val)
+	for _, l in ipairs(list) do
+		if l[e] then
+			l[e][key] = val
+
+			break
+		end
+	end
+end
+
 utils.advanced_null_check = function(datatype)
 	local datatype_reversed = string.reverse(datatype)
 
