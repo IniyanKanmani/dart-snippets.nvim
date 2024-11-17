@@ -6,7 +6,7 @@ to_map.generate_fun_to_map = function(class_data)
 	local to_map_code_lines = {}
 	local to_map_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		local to_map_return = {}
 		for _, d_v in ipairs(class_data.d_v) do
 			table.insert(
@@ -21,13 +21,13 @@ to_map.generate_fun_to_map = function(class_data)
 
 		to_map_string = string.format(
 			[[
-	Map<String, dynamic> toMap() {
-		return <String, dynamic>{
-			%s
-		};
-	}
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      %s
+    };
+  }
 			]],
-			table.concat(to_map_return, "\n\t\t\t")
+			table.concat(to_map_return, "\n      ")
 		)
 	end
 

@@ -6,7 +6,7 @@ from_map.generate_fun_from_map = function(class_data)
 	local from_map_code_lines = {}
 	local from_map_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		local from_map_return = {}
 
 		for _, d_v in ipairs(class_data.d_v) do
@@ -15,15 +15,15 @@ from_map.generate_fun_from_map = function(class_data)
 
 		from_map_string = string.format(
 			[[
-	factory %s.fromMap(Map<String, dynamic> map) {
-		return %s(
-			%s
-		);
-	}
+  factory %s.fromMap(Map<String, dynamic> map) {
+    return %s(
+      %s
+    );
+  }
 			]],
 			class_data.class.name,
 			class_data.class.name,
-			table.concat(from_map_return, "\n\t\t\t")
+			table.concat(from_map_return, "\n      ")
 		)
 	end
 

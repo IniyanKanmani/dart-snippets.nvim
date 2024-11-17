@@ -13,6 +13,10 @@ utils.to_lower_snake_case = function(value)
 	return new_value
 end
 
+utils.get_indent = function(indent)
+	return string.rep(" ", indent, "")
+end
+
 utils.contains = function(list, value)
 	for _, v in ipairs(list) do
 		if v == value then

@@ -6,7 +6,7 @@ operator.generate_fun_operator = function(class_data)
 	local operator_code_lines = {}
 	local operator_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		local operator_return = {}
 
 		for _, d_v in ipairs(class_data.d_v) do
@@ -15,15 +15,16 @@ operator.generate_fun_operator = function(class_data)
 
 		operator_string = string.format(
 			[[
-	@override
-	bool operator ==(covariant %s other) {
-		if (identical(this, other)) return true;
-		return
-			%s;
-	}
+  @override
+  bool operator ==(covariant %s other) {
+    if (identical(this, other)) return true;
+
+    return
+      %s;
+  }
 			]],
 			class_data.class.name,
-			table.concat(operator_return, " &&\n\t\t\t")
+			table.concat(operator_return, " &&\n      ")
 		)
 
 		if operator_string ~= "" then

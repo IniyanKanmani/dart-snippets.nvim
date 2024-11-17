@@ -46,12 +46,9 @@ read_class.find_class = function()
 	local f_counter = 0
 	local empty_line_counter = 0
 
-	local seen = {
-		seen_class = false,
-		seen_extends = false,
-		seen_final = false,
-		seen_empty_line = false,
-	}
+	local seen_class = false
+	local seen_extends = false
+	local seen_final = false
 
 	local datatype_name = nil
 	local nullable = nil
@@ -63,13 +60,14 @@ read_class.find_class = function()
 			local class_match = string.gmatch(line, read_class.regexps.class)
 
 			for c in class_match do
-				seen.seen_class = true
+				seen_class = true
 				class_index = class_index + 1
 
 				table.insert(read_class.data, class_index, {
 					class = {
 						name = c,
 					},
+					d_v = {},
 					f = {},
 				})
 
@@ -79,7 +77,7 @@ read_class.find_class = function()
 
 		-- Check for empty line and override
 		-- override = empty line
-		if seen.seen_class then
+		if seen_class then
 			local empty_line_match = string.match(line, read_class.regexps.empty_line)
 			local override_match = string.match(line, read_class.regexps.override)
 
@@ -89,7 +87,7 @@ read_class.find_class = function()
 		end
 
 		-- Check copy_with
-		if seen.seen_class then
+		if seen_class then
 			local copy_with_match = string.gmatch(line, read_class.regexps.copy_with)
 
 			for _ in copy_with_match do
@@ -107,7 +105,7 @@ read_class.find_class = function()
 		end
 
 		-- Check to_map
-		if seen.seen_class then
+		if seen_class then
 			local to_map_match = string.gmatch(line, read_class.regexps.to_map)
 
 			for _ in to_map_match do
@@ -125,7 +123,7 @@ read_class.find_class = function()
 		end
 
 		-- Check from_map
-		if seen.seen_class then
+		if seen_class then
 			local from_map_match = string.gmatch(line, read_class.regexps.from_map)
 
 			for _ in from_map_match do
@@ -143,7 +141,7 @@ read_class.find_class = function()
 		end
 
 		-- Check to_json
-		if seen.seen_class then
+		if seen_class then
 			local to_json_match = string.gmatch(line, read_class.regexps.to_json)
 
 			for _ in to_json_match do
@@ -161,7 +159,7 @@ read_class.find_class = function()
 		end
 
 		-- Check from_json
-		if seen.seen_class then
+		if seen_class then
 			local from_json_match = string.gmatch(line, read_class.regexps.from_json)
 
 			for _ in from_json_match do
@@ -179,7 +177,7 @@ read_class.find_class = function()
 		end
 
 		-- Check to_string
-		if seen.seen_class then
+		if seen_class then
 			local to_string_match = string.gmatch(line, read_class.regexps.to_string)
 
 			for _ in to_string_match do
@@ -197,7 +195,7 @@ read_class.find_class = function()
 		end
 
 		-- Check hash_code
-		if seen.seen_class then
+		if seen_class then
 			local hash_code_match = string.gmatch(line, read_class.regexps.hash_code)
 
 			for _ in hash_code_match do
@@ -215,7 +213,7 @@ read_class.find_class = function()
 		end
 
 		-- Check operator
-		if seen.seen_class then
+		if seen_class then
 			local operator_match = string.gmatch(line, read_class.regexps.operator)
 
 			for _ in operator_match do
@@ -233,7 +231,7 @@ read_class.find_class = function()
 		end
 
 		-- Check props
-		if seen.seen_class then
+		if seen_class then
 			local props_match = string.gmatch(line, read_class.regexps.props)
 
 			for _ in props_match do
@@ -251,25 +249,25 @@ read_class.find_class = function()
 		end
 
 		-- Check for extends
-		if seen.seen_class and not seen.seen_extends then
+		if seen_class and not seen_extends then
 			local extends_match = string.gmatch(line, read_class.regexps.extends)
 
 			for _ in extends_match do
-				seen.seen_extends = true
+				seen_extends = true
 
 				break
 			end
 		end
 
 		-- Check for Equatable
-		if seen.seen_class and seen.seen_extends then
+		if seen_class and seen_extends then
 			local equatable_match = string.gmatch(line, read_class.regexps.equatable)
 
 			for _ in equatable_match do
 				read_class.data[class_index].class.equatable = true
 
-				if seen.seen_extends then
-					seen.seen_extends = false
+				if seen_extends then
+					seen_extends = false
 				end
 
 				break
@@ -277,7 +275,7 @@ read_class.find_class = function()
 		end
 
 		-- Check for Opening "{"
-		if seen.seen_class then
+		if seen_class then
 			local opening_b_match = string.gmatch(line, read_class.regexps.opening_b)
 
 			for _ in opening_b_match do
@@ -290,16 +288,16 @@ read_class.find_class = function()
 		end
 
 		-- Check for final
-		if seen.seen_class then
+		if seen_class then
 			local final_match = string.gmatch(line, read_class.regexps.final)
 
 			for _ in final_match do
-				seen.seen_final = true
+				seen_final = true
 			end
 		end
 
 		-- Check for datatype
-		if seen.seen_class and seen.seen_final then
+		if seen_class and seen_final then
 			local datatype1_match = string.gmatch(line, read_class.regexps.datatype_1)
 
 			for d in datatype1_match do
@@ -324,7 +322,7 @@ read_class.find_class = function()
 		end
 
 		-- Check for variable
-		if seen.seen_class and seen.seen_final and datatype_name then
+		if seen_class and seen_final and datatype_name then
 			local variable_match = string.gmatch(line, read_class.regexps.variable)
 
 			for v in variable_match do
@@ -335,17 +333,13 @@ read_class.find_class = function()
 		end
 
 		-- Check for semicolon
-		if seen.seen_class and seen.seen_final and datatype_name and variable_name then
+		if seen_class and seen_final and datatype_name and variable_name then
 			local semicolon_match = string.gmatch(line, read_class.regexps.semicolon)
 
 			for _ in semicolon_match do
 				d_v_counter = d_v_counter + 1
 
-				if d_v_counter == 1 then
-					read_class.data[class_index].d_v = {}
-				end
-
-				table.insert(read_class.data[class_index].d_v, d_v_counter, {
+				table.insert(read_class.data[class_index].d_v, {
 					d = datatype_name,
 					v = variable_name,
 					nullable = nullable,
@@ -354,12 +348,12 @@ read_class.find_class = function()
 				variable_name = nil
 				nullable = nil
 				datatype_name = nil
-				seen.seen_final = false
+				seen_final = false
 			end
 		end
 
 		-- Check for Closing "}"
-		if seen.seen_class then
+		if seen_class then
 			local closing_b_match = string.gmatch(line, read_class.regexps.closing_b)
 
 			for _ in closing_b_match do
@@ -374,7 +368,7 @@ read_class.find_class = function()
 				if curly_counter == 0 then
 					d_v_counter = 0
 					f_counter = 0
-					seen.seen_class = false
+					seen_class = false
 					read_class.data[class_index].class.end_line = i
 				end
 			end
@@ -382,7 +376,7 @@ read_class.find_class = function()
 
 		-- Check for not empty line or override
 		-- override = empty line
-		if seen.seen_class and not seen.seen_override then
+		if seen_class then
 			local empty_line_match = string.match(line, read_class.regexps.empty_line)
 			local override_match = string.match(line, read_class.regexps.override)
 
@@ -391,8 +385,6 @@ read_class.find_class = function()
 			end
 		end
 	end
-
-	vim.notify(vim.inspect(read_class.data), vim.log.levels.INFO)
 
 	return read_class.data
 end

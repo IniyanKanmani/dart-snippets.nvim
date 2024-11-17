@@ -4,7 +4,7 @@ hash_code.generate_fun_hash_code = function(class_data)
 	local hash_code_code_lines = {}
 	local hash_code_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		local hash_code_return = {}
 
 		for _, d_v in ipairs(class_data.d_v) do
@@ -13,12 +13,12 @@ hash_code.generate_fun_hash_code = function(class_data)
 
 		hash_code_string = string.format(
 			[[
-	@override
-	int get hashCode {
-		return %s;
-	}
+  @override
+  int get hashCode {
+    return %s;
+  }
 			]],
-			table.concat(hash_code_return, " ^\n\t\t\t")
+			table.concat(hash_code_return, " ^\n      ")
 		)
 
 		if hash_code_string ~= "" then

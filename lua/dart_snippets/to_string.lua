@@ -4,7 +4,7 @@ to_string.generate_fun_to_string = function(class_data)
 	local to_string_code_lines = {}
 	local to_string_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		local to_string_return = {}
 
 		for _, d_v in ipairs(class_data.d_v) do
@@ -13,10 +13,10 @@ to_string.generate_fun_to_string = function(class_data)
 
 		to_string_string = string.format(
 			[[
-	@override
-	String toString() {
-		return "%s(%s)";
-	} 
+  @override
+  String toString() {
+    return "%s(%s)";
+  }
 			]],
 			class_data.class.name,
 			table.concat(to_string_return, ", ")

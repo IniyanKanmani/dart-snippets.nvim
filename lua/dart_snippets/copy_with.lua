@@ -4,7 +4,7 @@ copy_with.generate_fun_copy_with = function(class_data)
 	local copy_with_code_lines = {}
 	local copy_with_string = ""
 
-	if class_data.d_v then
+	if #class_data.d_v > 0 then
 		-- copy_with parameters
 		local copy_with_parameters = {}
 		for _, d_v in ipairs(class_data.d_v) do
@@ -19,18 +19,18 @@ copy_with.generate_fun_copy_with = function(class_data)
 
 		copy_with_string = string.format(
 			[[
-	%s copyWith({
-		%s
-	}) {
-		return %s(
-			%s
-		);
-	}
+  %s copyWith({
+    %s
+  }) {
+    return %s(
+      %s
+    );
+  }
 			]],
 			class_data.class.name,
-			table.concat(copy_with_parameters, "\n\t\t"),
+			table.concat(copy_with_parameters, "\n    "),
 			class_data.class.name,
-			table.concat(copy_with_return, "\n\t\t\t")
+			table.concat(copy_with_return, "\n      ")
 		)
 	end
 

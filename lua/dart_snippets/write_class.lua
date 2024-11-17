@@ -21,7 +21,7 @@ write_class.write_class_functions = function(opts, class_data)
 	for _, func in ipairs(write_class.function_order) do
 		if opts.data_class[func] then
 			for _, f in ipairs(class_data.f) do
-				if f.name == func then
+				if f.name == func and f.code_lines then
 					vim.api.nvim_buf_set_lines(0, end_line, end_line, false, f.code_lines)
 
 					end_line = end_line + #f.code_lines
