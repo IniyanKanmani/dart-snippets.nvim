@@ -17,6 +17,8 @@ local props = require("dart_snippets.props")
 
 generate_data_class.generate_dart_data_class = function(opts)
 	local data = read_buffer.read()
+	local has_written_a_class = false
+	local prev_diff = 0
 
 	for _, class_data in ipairs(data.classes) do
 		if #class_data.d_v == 0 then
@@ -30,6 +32,8 @@ generate_data_class.generate_dart_data_class = function(opts)
 
 			goto continue
 		end
+
+		has_written_a_class = true
 
 		if opts.data_class.copy_with then
 			utils.op_list(class_data.f, "copy_with", "code_lines", copy_with.generate_fun_copy_with(class_data))
@@ -67,12 +71,14 @@ generate_data_class.generate_dart_data_class = function(opts)
 			utils.op_list(class_data.f, "props", "code_lines", props.generate_fun_props(class_data))
 		end
 
-		write_buffer.write_functions(opts, class_data)
+		prev_diff = write_buffer.write_functions(opts, class_data, prev_diff)
 
 		::continue::
 	end
 
-	write_buffer.write_imports(opts, data.imports)
+	if has_written_a_class then
+		write_buffer.write_imports(opts, data.imports)
+	end
 end
 
 return generate_data_class

@@ -3,19 +3,20 @@ local read_buffer = {}
 local utils = require("dart_snippets.utils")
 
 read_buffer.regexps = {
-	import_convert = "import[ ]+['\"`]dart:convert['\"`][ ]*;",
-	import_foundation = "import[ ]+['\"`]package:flutter/foundation.dart['\"`][ ]*;",
+	import_convert = "[ \t]*import[ ]+['\"`]dart:convert['\"`][ ]*;",
+	import_foundation = "[ \t]*import[ ]+['\"`]package:flutter/foundation.dart['\"`][ ]*;",
+	import_equatable = "[ \t]*import[ ]+['\"`]package:equatable/equatable.dart['\"`][ ]*;",
 
-	class = "class ([a-zA-Z_]+)",
+	class = "[ \t]*class ([a-zA-Z_]+)",
 	extends = "[ ]*(extends)[ ]*",
 	equatable = "[ ]*(Equatable)[ ]*",
 
 	opening_b = "{",
 
-	final = "[ \t]*(final) ",
-	datatype_1 = "[ \t]*final ([a-zA-Z_<>,? ]+) [a-zA-Z_]+;$",
-	datatype_2 = "[ \t]*final ([a-zA-Z_<>,? ]+)$",
-	variable = "([a-zA-Z_]+);",
+	final = "[ \t]*(final)[ ]+",
+	datatype_1 = "[ \t]*final[ ]+([a-zA-Z_<>,? ]+)[ ]+[a-zA-Z_]+;$",
+	datatype_2 = "[ \t]*final[ ]+([a-zA-Z_<>,? ]+)$",
+	variable = "([a-zA-Z_]+);$",
 	semicolon = ";",
 
 	empty_line = "^%s*$",
@@ -74,6 +75,12 @@ read_buffer.read = function()
 
 			for _ in foundation_match do
 				import_data.foundation = true
+			end
+
+			local equatable_match = string.gmatch(line, read_buffer.regexps.import_equatable)
+
+			for _ in equatable_match do
+				import_data.equatable = true
 			end
 		end
 
@@ -429,8 +436,6 @@ read_buffer.read = function()
 		imports = import_data,
 		classes = class_data,
 	}
-
-	vim.notify(vim.inspect(data), vim.log.levels.INFO)
 
 	return data
 end
