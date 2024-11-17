@@ -14,9 +14,7 @@ to_string.generate_fun_to_string = function(class_data)
 		to_string_string = string.format(
 			[[
   @override
-  String toString() {
-    return "%s(%s)";
-  }
+  String toString() => "%s(%s)";
 			]],
 			class_data.class.name,
 			table.concat(to_string_return, ", ")

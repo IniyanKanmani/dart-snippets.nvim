@@ -14,9 +14,8 @@ hash_code.generate_fun_hash_code = function(class_data)
 		hash_code_string = string.format(
 			[[
   @override
-  int get hashCode {
-    return %s;
-  }
+  int get hashCode =>
+      %s;
 			]],
 			table.concat(hash_code_return, " ^\n      ")
 		)

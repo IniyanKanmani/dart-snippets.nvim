@@ -1,12 +1,14 @@
 local to_json = {}
 
-to_json.generate_fun_to_json = function()
+to_json.generate_fun_to_json = function(class_data)
 	local to_json_code_lines = {}
-	local to_json_string = string.format([[
-  String toJson() {
-    return json.encode(toMap());
-  }
+	local to_json_string = ""
+
+	if #class_data.d_v > 0 then
+		to_json_string = string.format([[
+  String toJson() => json.encode(toMap());
 		]])
+	end
 
 	if to_json_string ~= "" then
 		table.insert(to_json_code_lines, "")

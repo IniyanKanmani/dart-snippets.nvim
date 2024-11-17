@@ -15,9 +15,9 @@ write_class.function_order = {
 write_class.write_class_functions = function(opts, class_data)
 	-- Remove Previous Functions
 	local line_diff = write_class.remove_previous_functions(opts, class_data)
-
 	local end_line = class_data.class.end_line - 1 - line_diff
 
+	-- Write New Functions
 	for _, func in ipairs(write_class.function_order) do
 		if opts.data_class[func] then
 			for _, f in ipairs(class_data.f) do

@@ -20,6 +20,18 @@ generate_data_class.generate_dart_data_class = function(opts)
 	private.data = read_class.find_class()
 
 	for i, class_data in ipairs(private.data) do
+		if #class_data.d_v == 0 then
+			vim.notify(
+				string.format(
+					'dart-snippets.nvim: Could not find datatypes and variables for class "%s"',
+					class_data.class.name
+				),
+				vim.log.levels.INFO
+			)
+
+			goto continue
+		end
+
 		if opts.data_class.copy_with then
 			utils.op_list(private.data[i].f, "copy_with", "code_lines", copy_with.generate_fun_copy_with(class_data))
 		end
@@ -33,7 +45,7 @@ generate_data_class.generate_dart_data_class = function(opts)
 		end
 
 		if opts.data_class.to_json then
-			utils.op_list(private.data[i].f, "to_json", "code_lines", to_json.generate_fun_to_json())
+			utils.op_list(private.data[i].f, "to_json", "code_lines", to_json.generate_fun_to_json(class_data))
 		end
 
 		if opts.data_class.from_json then
@@ -57,6 +69,8 @@ generate_data_class.generate_dart_data_class = function(opts)
 		end
 
 		write_class.write_class_functions(opts, private.data[i])
+
+		::continue::
 	end
 end
 

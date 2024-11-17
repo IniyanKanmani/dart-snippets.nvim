@@ -3,30 +3,32 @@ local read_class = {}
 local utils = require("dart_snippets.utils")
 
 read_class.regexps = {
-	class = "class ([a-zA-Z]+)",
+	class = "class ([a-zA-Z_]+)",
 	extends = "[ ]*(extends)[ ]*",
 	equatable = "[ ]*(Equatable)[ ]*",
 
 	opening_b = "{",
 
 	final = "[ \t]*(final) ",
-	datatype_1 = "[ \t]final ([a-zA-Z<>,? ]+) [a-zA-Z_]+;$",
-	datatype_2 = "[ \t]final ([a-zA-Z<>,? ]+)$",
+	datatype_1 = "[ \t]*final ([a-zA-Z_<>,? ]+) [a-zA-Z_]+;$",
+	datatype_2 = "[ \t]*final ([a-zA-Z_<>,? ]+)$",
 	variable = "([a-zA-Z_]+);",
 	semicolon = ";",
 
 	empty_line = "^%s*$",
 
-	override = [[[ ]*@override]],
-	copy_with = [[[ ]+copyWith]],
-	to_map = [[[ ]+toMap]],
-	from_map = [[[ ]*factory.*fromMap]],
-	to_json = [[[ ]+toJson]],
-	from_json = [[[ ]*factory.*fromJson]],
-	to_string = [[[ ]+toString]],
-	hash_code = [[[ ]+hashCode]],
-	operator = [[[ ]+operator[ ]*==]],
-	props = [[[ ]+props]],
+	override = "[ \t]*@override",
+	one_line_return = "=>",
+
+	copy_with = "[ \t]*[a-zA-Z_]+[ ]+copyWith",
+	to_map = "[ \t]*Map.*[ ]+toMap",
+	from_map = "[ \t]*factory[ ]+.*fromMap",
+	to_json = "[ \t]*String[ ]+toJson",
+	from_json = "[ \t]*factory[ ]+.*fromJson",
+	to_string = "[ \t]*String[ ]+toString",
+	hash_code = "[ \t]*int[ ]+get[ ]+hashCode",
+	operator = "[ \t]*bool[ ]+operator[ ]*==",
+	props = "[ \t]*.*[ ]+get[ ]+props",
 
 	closing_b = "}",
 }
@@ -49,6 +51,7 @@ read_class.find_class = function()
 	local seen_class = false
 	local seen_extends = false
 	local seen_final = false
+	local seen_one_line_return = false
 
 	local datatype_name = nil
 	local nullable = nil
@@ -248,6 +251,15 @@ read_class.find_class = function()
 			end
 		end
 
+		-- Check for one line return
+		if seen_class then
+			local one_line_return_match = string.gmatch(line, read_class.regexps.one_line_return)
+
+			for _ in one_line_return_match do
+				seen_one_line_return = true
+			end
+		end
+
 		-- Check for extends
 		if seen_class and not seen_extends then
 			local extends_match = string.gmatch(line, read_class.regexps.extends)
@@ -333,22 +345,30 @@ read_class.find_class = function()
 		end
 
 		-- Check for semicolon
-		if seen_class and seen_final and datatype_name and variable_name then
+		if seen_class then
 			local semicolon_match = string.gmatch(line, read_class.regexps.semicolon)
 
 			for _ in semicolon_match do
-				d_v_counter = d_v_counter + 1
+				if seen_final and datatype_name and variable_name then
+					d_v_counter = d_v_counter + 1
 
-				table.insert(read_class.data[class_index].d_v, {
-					d = datatype_name,
-					v = variable_name,
-					nullable = nullable,
-				})
+					table.insert(read_class.data[class_index].d_v, {
+						d = datatype_name,
+						v = variable_name,
+						nullable = nullable,
+					})
 
-				variable_name = nil
-				nullable = nil
-				datatype_name = nil
-				seen_final = false
+					variable_name = nil
+					nullable = nil
+					datatype_name = nil
+					seen_final = false
+				elseif seen_one_line_return then
+					seen_one_line_return = false
+
+					if f_counter > 0 then
+						read_class.data[class_index].f[f_counter].end_line = i
+					end
+				end
 			end
 		end
 
@@ -385,6 +405,8 @@ read_class.find_class = function()
 			end
 		end
 	end
+
+	vim.notify(vim.inspect(read_class.data), vim.log.levels.INFO)
 
 	return read_class.data
 end
