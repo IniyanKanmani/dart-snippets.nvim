@@ -1,6 +1,6 @@
-local write_class = {}
+local write_buffer = {}
 
-write_class.function_order = {
+write_buffer.function_order = {
 	"copy_with",
 	"to_map",
 	"from_map",
@@ -12,13 +12,28 @@ write_class.function_order = {
 	"props",
 }
 
-write_class.write_class_functions = function(opts, class_data)
+write_buffer.write_imports = function(opts, import_data)
+	-- code
+	if not import_data.foundation then
+		if opts.data_class.operator then
+			vim.api.nvim_buf_set_lines(0, 0, 0, false, { "import 'package:flutter/foundation.dart';" })
+		end
+	end
+
+	if not import_data.convert then
+		if opts.data_class.to_json or opts.data_class.from_json then
+			vim.api.nvim_buf_set_lines(0, 0, 0, false, { "import 'dart:convert';" })
+		end
+	end
+end
+
+write_buffer.write_functions = function(opts, class_data)
 	-- Remove Previous Functions
-	local line_diff = write_class.remove_previous_functions(opts, class_data)
+	local line_diff = write_buffer.remove_previous_functions(opts, class_data)
 	local end_line = class_data.class.end_line - 1 - line_diff
 
 	-- Write New Functions
-	for _, func in ipairs(write_class.function_order) do
+	for _, func in ipairs(write_buffer.function_order) do
 		if opts.data_class[func] then
 			for _, f in ipairs(class_data.f) do
 				if f.name == func and f.code_lines then
@@ -33,7 +48,7 @@ write_class.write_class_functions = function(opts, class_data)
 	end
 end
 
-write_class.remove_previous_functions = function(opts, class_data)
+write_buffer.remove_previous_functions = function(opts, class_data)
 	local line_diff = 0
 
 	for _, f in ipairs(class_data.f) do
@@ -52,4 +67,4 @@ write_class.remove_previous_functions = function(opts, class_data)
 	return line_diff
 end
 
-return write_class
+return write_buffer
