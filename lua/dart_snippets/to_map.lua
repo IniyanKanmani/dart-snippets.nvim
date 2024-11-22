@@ -26,7 +26,7 @@ to_map.generate_fun_to_map = function(class_data)
       %s
     };
   }
-			]],
+            ]],
 			table.concat(to_map_return, "\n      ")
 		)
 	end
@@ -122,6 +122,9 @@ to_map.get_variable_value = function(datatype_data, variable_value)
 			)
 		then
 			variable_value = string.format("%s%s.toMap()", variable_value, datatype_data.nullable and "?" or "")
+		elseif datatype_data.parent == "DateTime" then
+			variable_value =
+				string.format("%s%s.toIso8601String()", variable_value, datatype_data.nullable and "?" or "")
 		else
 			variable_value = string.format("%s", variable_value)
 		end

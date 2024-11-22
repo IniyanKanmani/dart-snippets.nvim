@@ -20,7 +20,7 @@ from_map.generate_fun_from_map = function(class_data)
       %s
     );
   }
-			]],
+            ]],
 			class_data.class.name,
 			class_data.class.name,
 			table.concat(from_map_return, "\n      ")
@@ -71,7 +71,7 @@ from_map.get_variable_value = function(datatype_data, variable_value)
 
 			if
 				not utils.contains(
-					{ "int", "double", "Number", "String", "bool", "null", "DateTime", "dynamic", "Object" },
+					{ "int", "double", "Number", "String", "bool", "null", "dynamic", "Object" },
 					datatype_data.child[1].parent
 				)
 			then
@@ -97,7 +97,7 @@ from_map.get_variable_value = function(datatype_data, variable_value)
 
 			if
 				not utils.contains(
-					{ "int", "double", "Number", "String", "bool", "null", "DateTime", "dynamic", "Object" },
+					{ "int", "double", "Number", "String", "bool", "null", "dynamic", "Object" },
 					datatype_data.child[1].parent
 				)
 			then
@@ -125,11 +125,11 @@ from_map.get_variable_value = function(datatype_data, variable_value)
 
 			if
 				not utils.contains(
-					{ "int", "double", "Number", "String", "bool", "null", "DateTime", "dynamic", "Object" },
+					{ "int", "double", "Number", "String", "bool", "null", "dynamic", "Object" },
 					datatype_data.child[1].parent
 				)
 				or not utils.contains(
-					{ "int", "double", "Number", "String", "bool", "null", "DateTime", "dynamic", "Object" },
+					{ "int", "double", "Number", "String", "bool", "null", "dynamic", "Object" },
 					datatype_data.child[2].parent
 				)
 			then
@@ -161,6 +161,14 @@ from_map.get_variable_value = function(datatype_data, variable_value)
 			)
 		then
 			local s = string.format("%s.fromMap(%s)", datatype_data.parent, variable_value)
+
+			if datatype_data.nullable then
+				s = string.format("%s != null ? %s : null", variable_value, s)
+			end
+
+			variable_value = s
+		elseif datatype_data.parent == "DateTime" then
+			local s = string.format("DateTime.parse(%s)", variable_value)
 
 			if datatype_data.nullable then
 				s = string.format("%s != null ? %s : null", variable_value, s)
