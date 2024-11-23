@@ -1,31 +1,31 @@
 local from_json = {}
 
 from_json.generate_fun_from_json = function(class_data)
-	local from_json_code_lines = {}
-	local from_json_string = ""
+    local from_json_code_lines = {}
+    local from_json_string = ""
 
-	if #class_data.d_v > 0 then
-		from_json_string = string.format(
-			[[
+    if #class_data.d_v > 0 then
+        from_json_string = string.format(
+            [[
   factory %s.fromJson(String source) =>
     %s.fromMap(json.decode(source) as Map<String, dynamic>);
                         ]],
-			class_data.class.name,
-			class_data.class.name
-		)
-	end
+            class_data.class.name,
+            class_data.class.name
+        )
+    end
 
-	if from_json_string ~= "" then
-		table.insert(from_json_code_lines, "")
+    if from_json_string ~= "" then
+        table.insert(from_json_code_lines, "")
 
-		for line in string.gmatch(from_json_string, "[^\r\n]+") do
-			table.insert(from_json_code_lines, line)
-		end
+        for line in string.gmatch(from_json_string, "[^\r\n]+") do
+            table.insert(from_json_code_lines, line)
+        end
 
-		table.remove(from_json_code_lines, #from_json_code_lines)
-	end
+        table.remove(from_json_code_lines, #from_json_code_lines)
+    end
 
-	return from_json_code_lines
+    return from_json_code_lines
 end
 
 return from_json
