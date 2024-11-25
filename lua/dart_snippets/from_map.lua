@@ -10,7 +10,10 @@ from_map.generate_fun_from_map = function(class_data)
         local from_map_return = {}
 
         for _, d_v in ipairs(class_data.d_v) do
-            table.insert(from_map_return, string.format("%s: %s,", d_v.v, from_map.handle_datatypes(d_v.d, d_v.v)))
+            table.insert(
+                from_map_return,
+                string.format("%s: %s,", d_v.v, from_map.handle_datatypes(d_v.d, d_v.v, d_v.nullable))
+            )
         end
 
         from_map_string = string.format(
@@ -40,8 +43,12 @@ from_map.generate_fun_from_map = function(class_data)
     return from_map_code_lines
 end
 
-from_map.handle_datatypes = function(datatype, variable)
+from_map.handle_datatypes = function(datatype, variable, nullable)
     local variable_value = ""
+
+    if nullable then
+        datatype = string.format("%s?", datatype)
+    end
 
     -- breakdown datatype
     local datatype_data = utils.breakdown_datatype(datatype)

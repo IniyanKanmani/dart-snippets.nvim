@@ -84,7 +84,7 @@ to_map.get_variable_value = function(datatype_data, variable_value)
 
             local s = ""
             if child_value == "e" then
-                s = string.format("%s.toList()", variable_value)
+                s = string.format("%s%s.toList()", variable_value, datatype_data.nullable and "?" or "")
             else
                 s = string.format(
                     "%s%s.map((e) => %s).toList()",
