@@ -1,6 +1,8 @@
 # dart-snippets.nvim
 
-A Neovim plugin that streamlines Dart development by automatically generating data classes with common boilerplate code.
+A Neovim plugin for generating Dart data classes with common boilerplate code.
+
+https://github.com/user-attachments/assets/74e56806-093d-4d7d-b295-34a83643e51b
 
 ## Features
 
