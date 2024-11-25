@@ -8,7 +8,7 @@ to_string.generate_fun_to_string = function(class_data)
         local to_string_return = {}
 
         for _, d_v in ipairs(class_data.d_v) do
-            table.insert(to_string_return, string.format("%s : %s", d_v.v, d_v.v))
+            table.insert(to_string_return, string.format("%s: $%s", d_v.v, d_v.v))
         end
 
         to_string_string = string.format(
